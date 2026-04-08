@@ -111,35 +111,102 @@ public class ReachingDefinitionsVisitor implements ParserVisitor {
      * Computes the GEN sets for each line of code.
      */
     private void computeGenSets() {
-        // TODO exo 1
+        for (CodeLine line : CODE) {
+            line.GEN = new Definition(line.op, line.ASSIGN, line.left, line.right);
+        }
     }
 
     /**
      * Computes the KILL sets for each line of code.
      */
     private void computeKillSets() {
-        // TODO exo 1
+        for (CodeLine line : CODE) {
+            String assign = line.ASSIGN;
+            for (CodeLine other : CODE) {
+                if (other != line && other.ASSIGN.equals(assign)) {
+                    line.KILL.add(other.GEN);
+                }
+            }
+        }
     }
 
     /**
      * Computes the Reaching Definitions Analysis for the code.
      */
     private void computeReachingDefinitions() {
-        // TODO exo 2
+        computeGenSets();
+        computeKillSets();
+
+        Set<Definition> currentOut = new HashSet<>();
+        for (CodeLine line : CODE) {
+            line.ValDef_IN = new HashSet<>(currentOut);
+            line.ValDef_OUT = new HashSet<>(line.ValDef_IN);
+            line.ValDef_OUT.removeAll(line.KILL);
+            line.ValDef_OUT.add(line.GEN);
+            currentOut = line.ValDef_OUT;
+        }
     }
 
     /**
      * Optimizes the code by eliminating unnecessary assignments.
      */
     public void computeSingleAssignment() {
-        // TODO exo 3
+        for (CodeLine line : CODE) {
+            line.left = findReachingDefinition(line.left, line.ValDef_IN);
+            line.right = findReachingDefinition(line.right, line.ValDef_IN);
+        }
+    }
+
+    private String findReachingDefinition(String id, Set<Definition> inSet) {
+        if (id.isEmpty() || id.startsWith("#")) return id;
+
+        Definition found = null;
+        for (Definition def : inSet) {
+            if (def.ASSIGN.equals(id)) {
+                if (found != null) {
+                    return id;
+                }
+                found = def;
+            }
+        }
+        return (found != null) ? found.identifier : id;
     }
 
     /**
      * Eliminates dead code from the code.
      */
     public void eliminateDeadCode() {
-        // TODO exo 3
+        Set<String> usedDefinitions = new HashSet<>();
+        
+        // Find which definitions are used in return statements
+        for (String ret : RETURNS) {
+            if (CODE.isEmpty()) break;
+            CodeLine lastLine = CODE.get(CODE.size() - 1);
+            for (Definition def : lastLine.ValDef_OUT) {
+                if (def.ASSIGN.equals(ret)) {
+                    usedDefinitions.add(def.identifier);
+                }
+            }
+        }
+
+        // Iteratively find used definitions through data dependencies
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            for (CodeLine line : CODE) {
+                if (usedDefinitions.contains(line.GEN.identifier)) {
+                    if (line.left.startsWith("d_")) {
+                        if (usedDefinitions.add(line.left)) changed = true;
+                    }
+                    if (line.right.startsWith("d_")) {
+                        if (usedDefinitions.add(line.right)) changed = true;
+                    }
+                }
+            }
+        }
+
+        // Remove unused code lines
+        CODE.removeIf(line -> !usedDefinitions.contains(line.GEN.identifier));
     }
 
 

@@ -110,7 +110,13 @@ public class AvailableExpressionVisitor implements ParserVisitor {
      * Computes the GEN sets for each line of code.
      */
     public void computeGenSets(){
-        // TODO exo 1
+        for (CodeLine line : CODE) {
+            if (!line.right.isEmpty() && !line.right.equals("#0")) {
+                if (!line.ASSIGN.equals(line.left) && !line.ASSIGN.equals(line.right)) {
+                    line.GEN.add(new Expression(line.left, line.op, line.right));
+                }
+            }
+        }
     }
 
 
@@ -118,7 +124,21 @@ public class AvailableExpressionVisitor implements ParserVisitor {
      * Computes the KILL sets for each line of code.
      */
     public void computeKillSets() {
-        // TODO exo 1
+        Set<Expression> allExpressions = new HashSet<>();
+        for (CodeLine line : CODE) {
+            if (!line.right.isEmpty() && !line.right.equals("#0")) {
+                allExpressions.add(new Expression(line.left, line.op, line.right));
+            }
+        }
+
+        for (CodeLine line : CODE) {
+            String assign = line.ASSIGN;
+            for (Expression expr : allExpressions) {
+                if (expr.left.equals(assign) || expr.right.equals(assign)) {
+                    line.KILL.add(expr);
+                }
+            }
+        }
     }
 
 
@@ -127,7 +147,18 @@ public class AvailableExpressionVisitor implements ParserVisitor {
      * Computes the Available Expression Analysis for the code.
      */
     private void computeAvailableExpr() {
-        // TODO exo 2
+        computeGenSets();
+        computeKillSets();
+
+        Set<Expression> currentIn = new HashSet<>();
+        for (CodeLine line : CODE) {
+            line.Avail_IN = new HashSet<>(currentIn);
+            line.Avail_OUT = new HashSet<>(line.GEN);
+            Set<Expression> temp = new HashSet<>(line.Avail_IN);
+            temp.removeAll(line.KILL);
+            line.Avail_OUT.addAll(temp);
+            currentIn = line.Avail_OUT;
+        }
     }
 
 
@@ -135,7 +166,29 @@ public class AvailableExpressionVisitor implements ParserVisitor {
      * Eliminates common expressions in the code using the Available Expression Analysis.
      */
     private void eliminateCommonExpression() {
-        // TODO exo 3
+        Map<Expression, String> availableExprToId = new HashMap<>();
+
+        for (CodeLine line : CODE) {
+            if (!line.right.isEmpty() && !line.right.equals("#0")) {
+                Expression currentExpr = new Expression(line.left, line.op, line.right);
+                if (line.Avail_IN.contains(currentExpr)) {
+                    String existingId = availableExprToId.get(currentExpr);
+                    if (existingId != null) {
+                        line.left = existingId;
+                        line.right = "";
+                        line.op = "+";
+                    }
+                } else {
+                    if (line.GEN.contains(currentExpr)) {
+                        availableExprToId.put(currentExpr, line.ASSIGN);
+                    }
+                }
+            }
+
+            String assign = line.ASSIGN;
+            availableExprToId.entrySet().removeIf(entry ->
+                    entry.getKey().left.equals(assign) || entry.getKey().right.equals(assign));
+        }
     }
 
 
