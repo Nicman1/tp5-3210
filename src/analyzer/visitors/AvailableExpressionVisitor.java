@@ -8,12 +8,12 @@ import java.util.stream.Collectors;
 
 /**
  * This Java code defines a visitor class called AvailableExpressionVisitor for a custom parser.
- * The visitor class traverses an abstract syntax tree (AST) and generates optimised code (Common expression elimination).
+ * The visitor class traverses an abstract syntax tree (AST) and generates optimized code (Common expression elimination).
  * The code includes implementations for various types of assignment statements, such as direct assignment,
  * unary assignment, and assignment with arithmetic operations.
  * */
 public class AvailableExpressionVisitor implements ParserVisitor {
-    private PrintWriter m_writer = null;
+    private final PrintWriter m_writer;
     private final ArrayList<String> RETURNS = new ArrayList<>();
     private final ArrayList<CodeLine> CODE = new ArrayList<>();
 
@@ -220,7 +220,7 @@ public class AvailableExpressionVisitor implements ParserVisitor {
     /**
      * A struct to store the data of a code line.
      */
-    public class CodeLine {
+    public static class CodeLine {
         public String op;
         public String ASSIGN;
         public String left;

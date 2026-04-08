@@ -8,14 +8,14 @@ import java.util.stream.Collectors;
 
 /**
  * This Java code defines a visitor class called ReachingDefinitionsVisitor for a custom parser.
- * The visitor class traverses an abstract syntax tree (AST) and generates optimised code (Single Assignment and
+ * The visitor class traverses an abstract syntax tree (AST) and generates optimized code (Single Assignment and
  * Dead-code elimination). The code includes implementations for various types of assignment statements,
  * such as direct assignment, unary assignment, and assignment with arithmetic operations.
  * */
 public class ReachingDefinitionsVisitor implements ParserVisitor {
-    private PrintWriter m_writer = null;
+    private final PrintWriter m_writer;
     private final ArrayList<String> RETURNS = new ArrayList<>();
-    private ArrayList<CodeLine> CODE = new ArrayList<>();
+    private final ArrayList<CodeLine> CODE = new ArrayList<>();
 
     public ReachingDefinitionsVisitor(PrintWriter writer) {
         m_writer = writer;
