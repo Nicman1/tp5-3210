@@ -1,0 +1,20 @@
+// Bloc 0
+a = #1
+// ValDef_IN  : []
+// ValDef_OUT : [d_0]
+
+// Bloc 1
+a = #2
+// ValDef_IN  : [d_0]
+// ValDef_OUT : [d_1]
+
+// Bloc 2
+t0 = a
+// ValDef_IN  : [d_1]
+// ValDef_OUT : [d_1, d_2]
+
+###############################################
+Optimised code:
+d_1: a = #2
+d_2: t0 = d_1
+###############################################

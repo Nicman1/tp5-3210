@@ -1,0 +1,6 @@
+t0 = b + a
+t1 = c * d
+c = c * d
+t4 = c * d
+
+return

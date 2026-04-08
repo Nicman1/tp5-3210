@@ -1,0 +1,20 @@
+// Bloc 0
+t0 = b + a
+// Avail_IN  : []
+// Avail_OUT : [b+a]
+
+// Bloc 1
+t1 = c * d
+// Avail_IN  : [b+a]
+// Avail_OUT : [b+a, c*d]
+
+// Bloc 2
+c = t1
+// Avail_IN  : [b+a, c*d]
+// Avail_OUT : [b+a]
+
+// Bloc 3
+t4 = c * d
+// Avail_IN  : [b+a]
+// Avail_OUT : [b+a, c*d]
+

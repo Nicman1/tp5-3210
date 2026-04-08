@@ -1,0 +1,35 @@
+// Bloc 0
+t0 = b + a
+// Avail_IN  : []
+// Avail_OUT : [b+a]
+
+// Bloc 1
+t1 = c * d
+// Avail_IN  : [b+a]
+// Avail_OUT : [b+a, c*d]
+
+// Bloc 2
+c = t1
+// Avail_IN  : [b+a, c*d]
+// Avail_OUT : [b+a]
+
+// Bloc 3
+t2 = c * d
+// Avail_IN  : [b+a]
+// Avail_OUT : [b+a, c*d]
+
+// Bloc 4
+d = t2
+// Avail_IN  : [b+a, c*d]
+// Avail_OUT : [b+a]
+
+// Bloc 5
+t3 = c * d
+// Avail_IN  : [b+a]
+// Avail_OUT : [b+a, c*d]
+
+// Bloc 6
+t4 = t3
+// Avail_IN  : [b+a, c*d]
+// Avail_OUT : [b+a, c*d]
+

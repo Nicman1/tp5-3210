@@ -1,0 +1,33 @@
+// Bloc 0
+t0 = a + b
+// ValDef_IN  : []
+// ValDef_OUT : [d_0]
+
+// Bloc 1
+t1 = c * d
+// ValDef_IN  : [d_0]
+// ValDef_OUT : [d_0, d_1]
+
+// Bloc 2
+t2 = t0 + t1
+// ValDef_IN  : [d_0, d_1]
+// ValDef_OUT : [d_0, d_1, d_2]
+
+// Bloc 3
+t3 = #3
+// ValDef_IN  : [d_0, d_1, d_2]
+// ValDef_OUT : [d_0, d_1, d_2, d_3]
+
+// Bloc 4
+t4 = t2 + t3
+// ValDef_IN  : [d_0, d_1, d_2, d_3]
+// ValDef_OUT : [d_0, d_1, d_2, d_3, d_4]
+
+// Bloc 5
+t5 = t4 + t3
+// ValDef_IN  : [d_0, d_1, d_2, d_3, d_4]
+// ValDef_OUT : [d_0, d_1, d_2, d_3, d_4, d_5]
+
+###############################################
+Optimised code:
+###############################################
