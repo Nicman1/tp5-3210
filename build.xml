@@ -20,6 +20,12 @@
 
 <project name="Grammaire" default="test">
 
+    <!-- External libraries, you may have to edit these values -->
+    <!-- Theses values are set in the target compute-idea-lib-folder -->
+    <!-- <property name="intellij-lib-folder" value="" />
+    <property name="junit-jar" value="" />
+    <property name="hamcrest-jar" value="" /> -->
+
     <!-- JavaCC library, you may have to edit these values -->
     <property name="javacc-folder" value="./libs/javacc-7.0.2/bin/lib" />
     <property name="javacc-jar" value="${javacc-folder}/javacc.jar" />
@@ -39,14 +45,27 @@
     <property name="parser-file" value="${ant.project.name}.jj" />
     <property name="parser-file-t" value="${ant.project.name}.jjt" />
 
-    <!-- Set the properties for the libs. -->
-    <property name="junit-jar" value="C:/Users/nicch/.m2/repository/junit/junit/4.13.1/junit-4.13.1.jar" />
-    <property name="hamcrest-jar" value="C:/Users/nicch/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar" />
-
     <!-- The target to compile & test the parser, it will clean before -->
     <target name="all" depends="">
         <antcall target="full-compile" />
         <antcall target="test" />
+    </target>
+
+    <target name="compute-idea-lib-folder" depends="">
+        <!-- find the executable -->
+        <exec executable="which" outputproperty="intellij-exe-path">
+            <arg value="idea.sh"/>
+        </exec>
+
+        <!-- Get the correct parent subfolders -->
+        <dirname property="intellij-bin-folder" file="${intellij-exe-path}"/>
+        <dirname property="intellij-folder" file="${intellij-bin-folder}"/>
+
+        <!-- Set the properties for the libs. Use system-installed junit/hamcrest jars so
+            the build works outside the IDE. Adjust paths if your system uses different locations. -->
+        <property name="intellij-lib-folder" value="${intellij-folder}/lib"/>
+        <property name="junit-jar" value="/usr/share/java/junit-4.13.2.jar" />
+        <property name="hamcrest-jar" value="/usr/share/java/hamcrest-core.jar" />
     </target>
 
     <!-- The target used to generate the parser, it will translate the JavaCC files in
@@ -55,13 +74,12 @@
     <target name="pre-compile" depends="clean">
 
         <!-- First force a clean (depends) -->
-        <mkdir dir="${gen-folder}" />
 
         <!-- Generate the JavaCC files in the gen folder -->
         <copy file="${parser-file-t}" todir="${gen-folder}" />
 
         <jjtree
-                target="${gen-folder}/${parser-file-t}"
+                target="${parser-file-t}"
                 javacchome="${javacc-folder}"
                 outputdirectory="${gen-folder}"/>
 
@@ -84,13 +102,13 @@
 
     <!-- This target correctly compile all the java code. It is unused in Intellij,
         but mandatory if you use the command line. -->
-    <target name="full-compile" depends="pre-compile">
+    <target name="full-compile" depends="pre-compile,compute-idea-lib-folder">
 
         <!-- Generate the project. -->
         <mkdir dir="${out-folder}" />
         <javac
-            includeantruntime="false"
-            destdir="${out-folder}" >
+                includeantruntime="false"
+                destdir="${out-folder}" >
             <src path="${src-folder}" />
             <src path="${gen-folder}" />
         </javac>
@@ -98,8 +116,8 @@
         <!-- Generate the tests. -->
         <mkdir dir="${test-out-folder}" />
         <javac
-            includeantruntime="false"
-            destdir="${test-out-folder}" >
+                includeantruntime="false"
+                destdir="${test-out-folder}" >
             <src path="${test-src-folder}" />
             <classpath>
                 <pathelement location="${out-folder}" />
@@ -112,7 +130,7 @@
     <!-- This target will use the entry point TestRunner to execute all the tests.
         On Intellij, you can simply right click the green folders and press
         "Run All Tests" to do the same. -->
-    <target name="test" depends="">
+    <target name="test" depends="compute-idea-lib-folder">
         <!-- Find the results folders -->
         <pathconvert property="results-folder" pathsep=" ">
             <dirset dir="${test-result-folder}">
@@ -140,7 +158,7 @@
             </batchtest>
 
             <formatter type="plain"/>
-            <formatter type="xml"/> 
+            <formatter type="xml"/>
         </junit>
     </target>
 
