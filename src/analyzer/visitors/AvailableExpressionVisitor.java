@@ -33,8 +33,6 @@ public class AvailableExpressionVisitor implements ParserVisitor {
         computeAvailableExpr();
         eliminateCommonExpression();
 
-        computeAvailableExpr();
-
         printCode();
         return null;
     }
